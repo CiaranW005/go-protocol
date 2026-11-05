@@ -14,6 +14,8 @@ var (
 	ErrDuplicateID = errors.New("message ID already tracked")
 )
 
+// Tracker stores pending entries shared by the acknowledgement and response
+// trackers. Each supplies its own timeout-checking function.
 type Tracker[T any] struct {
 	mu            sync.Mutex
 	pending       map[core.ID]T
@@ -26,6 +28,8 @@ func NewTracker[T any]() *Tracker[T] {
 	}
 }
 
+// Run checks deadlines every 100 milliseconds until the context is canceled.
+// Stopping the loop does not clear pending entries or notify their callers.
 func (t *Tracker[T]) Run(ctx context.Context) {
 	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()

@@ -10,7 +10,7 @@ func NewID() ID {
 
 type Packet struct {
 	ID        ID     `json:"id"`
-	Timestamp uint64 `json:"timestamp"`
+	Timestamp uint64 `json:"timestamp"` // Timestamp is Unix time in milliseconds.
 }
 
 func (p Packet) GetID() ID {
@@ -18,6 +18,6 @@ func (p Packet) GetID() ID {
 }
 
 type PacketVariant interface {
-	isPacket()
+	isPacket() // The unexported isPacket method limits implementations to types defined in this package.
 	GetID() ID
 }

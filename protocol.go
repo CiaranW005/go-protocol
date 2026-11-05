@@ -5,6 +5,8 @@ import (
 	"github.com/CiaranW005/go-protocol/tracker"
 )
 
+// Expose packet types and trackers through one package so callers do not
+// need to import the implementation packages separately.
 const (
 	TypeWake      = core.TypeWake
 	TypeReset     = core.TypeReset

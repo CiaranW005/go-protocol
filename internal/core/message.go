@@ -21,9 +21,13 @@ const (
 
 type Message struct {
 	Packet
-	Type    MessageType `json:"type"`
-	ReplyTo ID          `json:"reply_to,omitempty"`
-	Body    any         `json:"body"`
+	Type MessageType `json:"type"`
+	// ReplyTo identifies the original request when this message is a response.
+	// Leave empty for a new request.
+	ReplyTo ID `json:"reply_to,omitempty"`
+	// Body must be JSON-encodable. After decoding, JSON objects become
+	// map[string]any rather than their original Go struct type.
+	Body any `json:"body"`
 }
 
 func (Message) isPacket() {}

@@ -7,6 +7,9 @@ import (
 	"github.com/CiaranW005/go-protocol/internal/core"
 )
 
+// Timeout is the wait for each acknowledgement attempt.
+// MaxRetries counts additional sends after the initial send;
+// zero means wait for acknowledgement without retrying.
 type RetryPolicy struct {
 	Timeout    time.Duration
 	MaxRetries int
@@ -39,6 +42,8 @@ func NewAckTracker(callbacks TrackerCallbacks) *AckTracker {
 	return t
 }
 
+// Track starts waiting for acknowledgement but does not send the message.
+// The caller must perform the initial send.
 func (t *AckTracker) Track(message core.Message, policy RetryPolicy) error {
 	return t.Tracker.Track(message.ID, PendingMessage{
 		Message:  message,
@@ -61,6 +66,8 @@ func (t *AckTracker) Acknowledgement(ack core.Acknowledgement) bool {
 		return false
 	}
 
+	// Any matching acknowledgement stops retries, including error statuses.
+	// The Acked callback decides how to handle the reported status.
 	if t.callbacks.Acked != nil {
 		t.callbacks.Acked(pending.Message, ack)
 	}
@@ -111,9 +118,10 @@ func (t *AckTracker) checkTimeouts() {
 
 	t.mu.Unlock()
 
-	// callbacks have to be run outside the mutex (deadlocks)
+	// Release the lock before calling external code because a callback may
+	// need to access this tracker again.
 	for _, message := range retries {
-		// an ACK couldve arrived after the timeout scan
+		// Skip this retry if the message was acknowledged or canceled after the scan.
 		if !t.IsPending(message.ID) {
 			continue
 		}

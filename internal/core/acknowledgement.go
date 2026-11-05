@@ -32,6 +32,8 @@ func NewAcknowledgement(
 
 	return Acknowledgement{
 		Packet: Packet{
+			// Reuse the acknowledged message's ID so the sender can match it
+			// to the correct pending delivery.
 			ID:        message_id,
 			Timestamp: uint64(time.Now().UnixMilli()),
 		},

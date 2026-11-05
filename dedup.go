@@ -18,6 +18,9 @@ func NewDeduplicator(lifetime time.Duration) *Deduplicator {
 	}
 }
 
+// IsDuplicate returns true if this ID was seen within its lifetime.
+// Otherwise it records the ID with a new expiry time.
+// Duplicate checks do not extend the expiry.
 func (d *Deduplicator) IsDuplicate(id ID) bool {
 	d.mu.Lock()
 	defer d.mu.Unlock()

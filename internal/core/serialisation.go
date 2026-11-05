@@ -9,6 +9,9 @@ func SerialisePacket(packet any) ([]byte, error) {
 	return json.Marshal(packet)
 }
 
+// DeserialisePacket uses status to identify acknowledgements and type
+// to identify messages. If both are present, status takes precedence.
+// Decoding does not validate command names or required packet values.
 func DeserialisePacket(raw []byte) (PacketVariant, error) {
 	var header struct {
 		Type   *MessageType `json:"type"`
